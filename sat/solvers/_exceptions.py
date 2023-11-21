@@ -1,0 +1,4 @@
+
+class UNSATExcpetion(Exception):
+
+    pass
