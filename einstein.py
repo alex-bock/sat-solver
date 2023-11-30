@@ -4,6 +4,8 @@ import json
 from sat.puzzle import Puzzle
 from sat import DPLL
 
+from sat.selectors import NaiveSelector
+
 
 def build_puzzle() -> Puzzle:
 
@@ -52,7 +54,7 @@ if __name__ == "__main__":
     with open("./output/var_map.json", "w") as f:
         json.dump(puzzle_cnf._var_map, f)
 
-    solver = DPLL(verbose=True)
+    solver = DPLL(selector=NaiveSelector(), verbose=True)
     tau = solver.solve(puzzle_cnf)
     with open("./output/solution.txt", "w") as f:
         for (var, val) in tau.items():
