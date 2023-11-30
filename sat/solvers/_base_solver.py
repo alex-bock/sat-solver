@@ -6,7 +6,10 @@ from ..formulas import ClausalFormula
 
 class Solver:
 
-    def __init__(self):
+    def __init__(self, verbose: bool = False):
+
+        self._verbose = verbose
+        self._n_calls = 0
 
         return
 

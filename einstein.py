@@ -46,14 +46,13 @@ if __name__ == "__main__":
 
     puzzle_cnf = puzzle.cnf
     puzzle_cnf.to_dimacs("./output/dimacs.txt")
-    puzzle_cnf.simplify()
     with open("./output/cnf.txt", "w") as f:
         for clause in puzzle_cnf:
             f.write(str(clause) + "\n")
     with open("./output/var_map.json", "w") as f:
         json.dump(puzzle_cnf._var_map, f)
 
-    solver = DPLL()
+    solver = DPLL(verbose=True)
     tau = solver.solve(puzzle_cnf)
     with open("./output/solution.txt", "w") as f:
         for (var, val) in tau.items():

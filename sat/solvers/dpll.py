@@ -11,15 +11,16 @@ from ..formulas import CNF
 
 class DPLL(Solver):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
 
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
         return
 
     def solve(self, formula: CNF) -> Tau:
 
         tau = dict()
+        self._n_calls = 0
         _, tau = self._solve_rec(formula, tau)
 
         return tau
@@ -31,7 +32,8 @@ class DPLL(Solver):
         if len(formula) == 0:
             return formula, tau
         elif formula.has_empty_clauses():
-            print(" " * depth, "empty clauses found!")
+            if self._verbose:
+                print(" " * depth, "empty clauses found!")
             raise UNSATExcpetion
 
         if formula.has_unit_clauses():
@@ -50,7 +52,8 @@ class DPLL(Solver):
                     reduced_formula, updated_tau, depth=depth + 1
                 )
             except UNSATExcpetion:
-                print(" " * depth, "backtracking...")
+                if self._verbose:
+                    print(" " * depth, "backtracking...")
                 reduced_formula, updated_tau = self._split(
                     formula, tau, False, depth=depth
                 )
@@ -72,7 +75,8 @@ class DPLL(Solver):
             var = literal
             val = True
 
-        print(" " * depth, "propagating...", len(formula), var, val)
+        if self._verbose:
+            print(" " * depth, "propagating...", len(formula), var, val)
 
         assignment = {var: val}
         reduced_formula = copy.deepcopy(formula)
@@ -93,7 +97,8 @@ class DPLL(Solver):
         else:
             var = literal
 
-        print(" " * depth, "splitting...", len(formula), var, val)
+        if self._verbose:
+            print(" " * depth, "splitting...", len(formula), var, val)
 
         assignment = {var: val}
         reduced_formula = copy.deepcopy(formula)
