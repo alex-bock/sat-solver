@@ -2,6 +2,8 @@
 import abc
 from typing import List, Self, Set
 
+import numpy as np
+
 from .clauses import Conjunction, Disjunction
 from .constants import NOT, Tau
 
@@ -20,6 +22,18 @@ class ClausalFormula(abc.ABC):
 
         return
     
+    @classmethod
+    def from_str(cls, s: str) -> Self:
+
+        phi = cls()
+        for clause_str in s.split(phi._clause_connective.sym):
+            if phi._literal_connective.sym in clause_str:
+                phi.add_clause(*clause_str[1:-1].split(phi._literal_connective.sym))
+            else:
+                phi.add_clause(clause_str)
+
+        return phi
+    
     def __getitem__(self, idx: int) -> Disjunction:
 
         return self.clauses[idx]
@@ -33,6 +47,10 @@ class ClausalFormula(abc.ABC):
         return len(self.clauses)
 
     def __repr__(self) -> str:
+
+        return self._clause_connective.sym.join([repr(c) for c in self.clauses])
+    
+    def as_str(self) -> str:
 
         return self._clause_connective.sym.join([repr(c) for c in self.clauses])
 
@@ -134,6 +152,17 @@ class CNF(ClausalFormula):
             for literal in dnf_clauses[0]:
                 for x in CNF._build_clause_from_dnf(dnf_clauses[1:]):
                     yield [literal] + x
+
+    @classmethod
+    def generate(cls, n: int, l: int, k: int = 3) -> Self:
+
+        vars = [f"p{i}" for i in range(n)] + [f"{NOT}p{i}" for i in range(n)]
+        cnf = cls()
+
+        for i in range(l):
+            cnf.add_clause(*np.random.choice(vars, size=k))
+
+        return cnf
 
     def append_cnf(self, cnf: Self):
 

@@ -56,9 +56,6 @@ class DPLL(Solver):
             var = literal
             val = True
 
-        # if var in tau.keys():
-        #     val = tau[var]
-
         print(" " * depth, "propagating...", len(formula), var, val)
         
         assignment = {var: val}
@@ -77,9 +74,6 @@ class DPLL(Solver):
             var = literal[1:]
         else:
             var = literal
-
-        # if var in tau.keys():
-        #     val = tau[var]
 
         print(" " * depth, "splitting...", len(formula), var, val)
 
