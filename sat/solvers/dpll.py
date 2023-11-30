@@ -3,6 +3,7 @@ import copy
 from typing import Dict, Tuple
 
 from ._base_solver import Solver
+from ..selectors._base_selector import BaseSelector
 from ._exceptions import UNSATExcpetion
 
 from ..constants import Tau, NOT
@@ -11,9 +12,10 @@ from ..formulas import CNF
 
 class DPLL(Solver):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, selector: BaseSelector, verbose: bool = False):
 
-        super().__init__(*args, **kwargs)
+        super().__init__(verbose=verbose)
+        self._selector = selector
 
         return
 
