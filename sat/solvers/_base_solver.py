@@ -9,7 +9,7 @@ class Solver:
     def __init__(self):
 
         return
-    
+
     @abc.abstractmethod
     def solve(self, formula: ClausalFormula):
 

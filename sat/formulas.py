@@ -21,38 +21,44 @@ class ClausalFormula(abc.ABC):
         self._n_vars = 0
 
         return
-    
+
     @classmethod
     def from_str(cls, s: str) -> Self:
 
         phi = cls()
         for clause_str in s.split(phi._clause_connective.sym):
             if phi._literal_connective.sym in clause_str:
-                phi.add_clause(*clause_str[1:-1].split(phi._literal_connective.sym))
+                phi.add_clause(
+                    *clause_str[1:-1].split(phi._literal_connective.sym)
+                )
             else:
                 phi.add_clause(clause_str)
 
         return phi
-    
+
     def __getitem__(self, idx: int) -> Disjunction:
 
         return self.clauses[idx]
-    
+
     def __iter__(self):
 
         return iter(self.clauses)
-    
+
     def __len__(self) -> int:
 
         return len(self.clauses)
 
     def __repr__(self) -> str:
 
-        return self._clause_connective.sym.join([repr(c) for c in self.clauses])
-    
+        return self._clause_connective.sym.join(
+            [repr(c) for c in self.clauses]
+        )
+
     def as_str(self) -> str:
 
-        return self._clause_connective.sym.join([repr(c) for c in self.clauses])
+        return self._clause_connective.sym.join(
+            [repr(c) for c in self.clauses]
+        )
 
     def add_clause(self, *literals):
 
@@ -71,11 +77,11 @@ class ClausalFormula(abc.ABC):
                 self._var_map[literal] = self._n_vars
 
         return
-    
+
     def has_empty_clauses(self) -> bool:
 
         return any([clause.is_empty() for clause in self])
-    
+
     def has_unit_clauses(self) -> bool:
 
         return any([clause.is_unit() for clause in self])
@@ -107,7 +113,7 @@ class CNF(ClausalFormula):
         self._clause_connective = Conjunction
 
         return
-    
+
     @classmethod
     def from_dimacs(cls, fp: str) -> Self:
 
@@ -115,7 +121,7 @@ class CNF(ClausalFormula):
 
         with open(fp, "r") as f:
             dimacs_clauses = [line.strip() for line in f.readlines()]
-        
+
         for dimacs_clause in dimacs_clauses:
             if dimacs_clause[0] in ("c", "p"):
                 continue
@@ -131,7 +137,7 @@ class CNF(ClausalFormula):
             cnf.add_clause(*literals)
 
         return cnf
-    
+
     @classmethod
     def from_dnf(cls, dnf: DNF) -> Self:
 
@@ -139,9 +145,9 @@ class CNF(ClausalFormula):
         dnf_clauses = [clause.literals for clause in dnf]
         for cnf_clause in CNF._build_clause_from_dnf(dnf_clauses):
             cnf.add_clause(*cnf_clause)
-        
+
         return cnf
-    
+
     @staticmethod
     def _build_clause_from_dnf(dnf_clauses):
 
@@ -170,7 +176,7 @@ class CNF(ClausalFormula):
             self.add_clause(*clause.literals)
 
         return
-    
+
     def simplify(self):
 
         i = 0
@@ -186,11 +192,11 @@ class CNF(ClausalFormula):
                 else:
                     j += 1
             i += 1
-        
+
         print(f"Removed {n} clauses")
 
         return
-    
+
     def reduce(self, tau: Tau):
 
         i = 0
@@ -200,13 +206,13 @@ class CNF(ClausalFormula):
             remove = False
             # print(clause)
             for var, val in tau.items():
-                if val == True:
+                if val:
                     if var in clause.literals:
                         remove = True
                     elif f"{NOT}{var}" in clause.literals:
                         clause.literals.remove(f"{NOT}{var}")
                         # print(f"- Changed: {clause}")
-                elif val == False:
+                else:
                     if var in clause.literals:
                         clause.literals.remove(var)
                         # print(f"- Changed: {clause}")
@@ -220,7 +226,7 @@ class CNF(ClausalFormula):
                 i += 1
 
         return
-    
+
     def evaluate(self, tau: Tau):
 
         result = True
@@ -240,12 +246,16 @@ class CNF(ClausalFormula):
             result &= clause_result
 
         return result
-    
+
     def to_dimacs(self, fp: str):
-        
+
         with open(fp, "w") as f:
             f.write(f"p cnf {self._n_vars} {len(self)}\n")
             for clause in self:
-                f.write(" ".join([str(-1 * self._var_map[var[1:]]) if var.startswith(NOT) else str(self._var_map[var]) for var in clause]) + "\n")
+                f.write(
+                    " ".join(
+                        [str(x) for x in clause.to_dimacs(self._var_map)]
+                    ) + "\n"
+                )
 
         return

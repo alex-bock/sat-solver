@@ -16,15 +16,17 @@ class DPLL(Solver):
         super().__init__()
 
         return
-    
+
     def solve(self, formula: CNF) -> Tau:
 
         tau = dict()
-        _, tau = self._solve_rec(formula, tau) 
+        _, tau = self._solve_rec(formula, tau)
 
         return tau
-    
-    def _solve_rec(self, formula: CNF, tau: Dict[str, bool], depth: int = 0) -> Tuple[CNF, Tau]:
+
+    def _solve_rec(
+        self, formula: CNF, tau: Dict[str, bool], depth: int = 0
+    ) -> Tuple[CNF, Tau]:
 
         if len(formula) == 0:
             return formula, tau
@@ -33,18 +35,32 @@ class DPLL(Solver):
             raise UNSATExcpetion
 
         if formula.has_unit_clauses():
-            reduced_formula, updated_tau = self._unit_propagate(formula, tau, depth=depth)
-            return self._solve_rec(reduced_formula, updated_tau, depth=depth + 1)
+            reduced_formula, updated_tau = self._unit_propagate(
+                formula, tau, depth=depth
+            )
+            return self._solve_rec(
+                reduced_formula, updated_tau, depth=depth + 1
+            )
         else:
             try:
-                reduced_formula, updated_tau = self._split(formula, tau, True, depth=depth)
-                return self._solve_rec(reduced_formula, updated_tau, depth=depth + 1)
+                reduced_formula, updated_tau = self._split(
+                    formula, tau, True, depth=depth
+                )
+                return self._solve_rec(
+                    reduced_formula, updated_tau, depth=depth + 1
+                )
             except UNSATExcpetion:
                 print(" " * depth, "backtracking...")
-                reduced_formula, updated_tau = self._split(formula, tau, False, depth=depth)
-                return self._solve_rec(reduced_formula, updated_tau, depth=depth + 1)
-    
-    def _unit_propagate(self, formula: CNF, tau: Tau, depth: int = 0) -> Tuple[CNF, Tau]:
+                reduced_formula, updated_tau = self._split(
+                    formula, tau, False, depth=depth
+                )
+                return self._solve_rec(
+                    reduced_formula, updated_tau, depth=depth + 1
+                )
+
+    def _unit_propagate(
+        self, formula: CNF, tau: Tau, depth: int = 0
+    ) -> Tuple[CNF, Tau]:
 
         unit_clauses = formula.get_unit_clauses()
 
@@ -57,7 +73,7 @@ class DPLL(Solver):
             val = True
 
         print(" " * depth, "propagating...", len(formula), var, val)
-        
+
         assignment = {var: val}
         reduced_formula = copy.deepcopy(formula)
         reduced_formula.reduce(assignment)
@@ -66,8 +82,10 @@ class DPLL(Solver):
         updated_tau.update(assignment)
 
         return reduced_formula, updated_tau
-        
-    def _split(self, formula: CNF, tau: Tau, val: bool, depth: int = 0) -> Tuple[CNF, Tau]:
+
+    def _split(
+        self, formula: CNF, tau: Tau, val: bool, depth: int = 0
+    ) -> Tuple[CNF, Tau]:
 
         literal = formula[0][0]
         if literal.startswith(NOT):
