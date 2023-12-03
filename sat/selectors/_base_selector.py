@@ -15,7 +15,7 @@ class BaseSelector(abc.ABC):
     def select(self, formula: CNF) -> (str, bool):
 
         raise NotImplementedError
-    
+
     def _lit_to_var(self, lit: str) -> str:
 
         if lit.startswith(NOT):

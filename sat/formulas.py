@@ -169,7 +169,7 @@ class CNF(ClausalFormula):
             cnf.add_clause(*np.random.choice(vars, size=k))
 
         return cnf
-    
+
     @property
     def vars(self) -> Set[str]:
 
