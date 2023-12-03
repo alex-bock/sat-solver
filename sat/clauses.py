@@ -34,8 +34,7 @@ class Clause(abc.ABC):
         else:
             return s
 
-    @property
-    @abc.abstractmethod
+    @abc.abstractproperty
     def sym(self) -> str:
 
         raise NotImplementedError
@@ -51,25 +50,49 @@ class Clause(abc.ABC):
     def is_equivalent(self, clause: Self) -> bool:
 
         return set(self.literals) == set(clause.literals)
+    
+    def remove(self, *literals):
+
+        for lit in literals:
+            while lit in self:
+                self.literals.remove(lit)
+
+        return
 
 
 class Conjunction(Clause):
 
-    sym = AND
+    @classmethod
+    @property
+    def sym(self) -> str:
+
+        return AND
 
 
 class Disjunction(Clause):
 
-    sym = OR
+    @classmethod
+    @property
+    def sym(self) -> str:
 
-    def to_dimacs(self, var_map: dict) -> List[int]:
+        return OR
+
+    def to_dimacs(self, var_map: dict = None) -> List[int]:
+
+        if var_map is None:
+            var_map = {}
+            for i in range(len(self)):
+                if self[i].startswith(NOT):
+                    var_map[self[i][1:]] = i
+                else:
+                    var_map[self[i]] = i
 
         dimacs = list()
 
         for lit in self.literals:
             if lit.startswith(NOT):
-                dimacs.append(-1 * var_map[lit[1:]])
+                dimacs.append("-" + str(var_map[lit[1:]]))
             else:
                 dimacs.append(var_map[lit])
 
-        return dimacs
+        return " ".join([str(x) for x in dimacs])

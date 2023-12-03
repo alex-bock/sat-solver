@@ -14,9 +14,6 @@ class ClausalFormula(abc.ABC):
 
         self.clauses = list()
 
-        self._literal_connective = None
-        self._clause_connective = None
-
         self._var_map = dict()
         self._n_vars = 0
 
@@ -53,6 +50,18 @@ class ClausalFormula(abc.ABC):
         return self._clause_connective.sym.join(
             [repr(c) for c in self.clauses]
         )
+
+    @property
+    @abc.abstractproperty
+    def _clause_connective(self):
+
+        raise NotImplementedError
+    
+    @property
+    @abc.abstractproperty
+    def _literal_connective(self):
+
+        raise NotImplementedError
 
     def as_str(self) -> str:
 
@@ -92,27 +101,29 @@ class ClausalFormula(abc.ABC):
 
 
 class DNF(ClausalFormula):
+    
+    @property
+    def _clause_connective(self):
 
-    def __init__(self):
+        return Disjunction
 
-        super().__init__()
+    @property
+    def _literal_connective(self):
 
-        self._literal_connective = Conjunction
-        self._clause_connective = Disjunction
-
-        return
+        return Conjunction
 
 
 class CNF(ClausalFormula):
+    
+    @property
+    def _clause_connective(self):
 
-    def __init__(self):
+        return Conjunction
 
-        super().__init__()
+    @property
+    def _literal_connective(self):
 
-        self._literal_connective = Disjunction
-        self._clause_connective = Conjunction
-
-        return
+        return Disjunction
 
     @classmethod
     def from_dimacs(cls, fp: str) -> Self:
@@ -219,15 +230,13 @@ class CNF(ClausalFormula):
                     if var in clause.literals:
                         remove = True
                     else:
-                        while f"{NOT}{var}" in clause.literals:
-                            clause.literals.remove(f"{NOT}{var}")
+                        clause.remove(f"{NOT}{var}")
                         # print(f"- Changed: {clause}")
                 else:
                     if f"{NOT}{var}" in clause.literals:
                         remove = True
                     else:
-                        while var in clause.literals:
-                            clause.literals.remove(var)
+                        clause.remove(var)
                         # print(f"- Changed: {clause}")
             if remove:
                 self.clauses.remove(clause)
@@ -263,10 +272,6 @@ class CNF(ClausalFormula):
         with open(fp, "w") as f:
             f.write(f"p cnf {self._n_vars} {len(self)}\n")
             for clause in self:
-                f.write(
-                    " ".join(
-                        [str(x) for x in clause.to_dimacs(self._var_map)]
-                    ) + "\n"
-                )
+                f.write(clause.to_dimacs(var_map=self._var_map) + "\n")
 
         return
