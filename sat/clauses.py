@@ -1,12 +1,11 @@
 
+import abc
 from typing import List, Self
 
 from .constants import LP, RP, OR, AND, NOT
 
 
-class Clause:
-
-    sym = None
+class Clause(abc.ABC):
 
     def __init__(self, *literals):
 
@@ -35,6 +34,12 @@ class Clause:
         else:
             return s
 
+    @property
+    @abc.abstractmethod
+    def sym(self) -> str:
+
+        raise NotImplementedError
+
     def is_empty(self) -> bool:
 
         return len(self) == 0
@@ -46,6 +51,11 @@ class Clause:
     def is_equivalent(self, clause: Self) -> bool:
 
         return set(self.literals) == set(clause.literals)
+
+
+class Conjunction(Clause):
+
+    sym = AND
 
 
 class Disjunction(Clause):
@@ -63,8 +73,3 @@ class Disjunction(Clause):
                 dimacs.append(var_map[lit])
 
         return dimacs
-
-
-class Conjunction(Clause):
-
-    sym = AND
