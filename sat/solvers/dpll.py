@@ -108,11 +108,3 @@ class DPLL(Solver):
         updated_tau.update(assignment)
 
         return reduced_formula, updated_tau
-
-
-if __name__ == "__main__":
-
-    cnf = CNF.from_dimacs("./input/UUF50.218.1000/uuf50-05.cnf")
-
-    solver = DPLL()
-    tau = solver.solve(cnf)
