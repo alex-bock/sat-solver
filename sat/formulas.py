@@ -14,7 +14,7 @@ class ClausalFormula(abc.ABC):
 
         if clauses is None:
             clauses = list()
-        
+
         self.clauses = clauses
         self._var_map = dict()
         self._n_vars = 0
@@ -49,7 +49,7 @@ class ClausalFormula(abc.ABC):
     def __len__(self) -> int:
 
         return len(self.clauses)
-    
+
     def __str__(self) -> str:
 
         return self._clause_connective.sym.join(
@@ -65,13 +65,13 @@ class ClausalFormula(abc.ABC):
     def _clause_connective(self):
 
         raise NotImplementedError
-    
+
     @property
     @abc.abstractproperty
     def _literal_connective(self):
 
         raise NotImplementedError
-    
+
     @property
     def vars(self) -> Set[str]:
 
@@ -109,7 +109,7 @@ class ClausalFormula(abc.ABC):
 
 
 class DNF(ClausalFormula):
-    
+
     @property
     def _clause_connective(self):
 
@@ -178,7 +178,7 @@ class CNF(ClausalFormula):
             cnf.add_clause(*np.random.choice(vars, size=k))
 
         return cnf
-    
+
     @property
     def _clause_connective(self):
 

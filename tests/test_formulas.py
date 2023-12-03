@@ -39,14 +39,14 @@ class TestCNF(TestCase):
         )
 
         return
-    
+
     def test_properties(self):
 
         self.assertEqual(len(self.cnf), len(TEST_CNF_CLAUSES))
         self.assertEqual(len(self.cnf.vars), TEST_CNF_N_VARS)
 
         return
-    
+
     def test_from_dimacs(self):
 
         cnf = CNF.from_dimacs(TEST_DIMACS_FP)
@@ -54,7 +54,7 @@ class TestCNF(TestCase):
         self.assertSetEqual(cnf.vars, set(TEST_DIMACS_LITERALS))
 
         return
-    
+
     def test_from_dnf(self):
 
         dnf = DNF.from_str(TEST_DNF_STR)
@@ -76,7 +76,7 @@ class TestCNF(TestCase):
             self.assertEqual(len(clause), 3)
 
         return
-    
+
     def test_add_clause(self):
 
         cnf = CNF(
@@ -88,21 +88,26 @@ class TestCNF(TestCase):
         self.assertEqual(len(cnf.vars), TEST_CNF_N_VARS + 2)
 
         return
-    
+
     def test_append_cnf(self):
 
         cnf = CNF(
             [Disjunction(*literals) for literals in TEST_CNF_CLAUSES]
         )
         cnf.append_cnf(
-            CNF([Disjunction(*literals) for literals in TEST_APPEND_CNF_CLAUSES])
+            CNF(
+                [
+                    Disjunction(*literals)
+                    for literals in TEST_APPEND_CNF_CLAUSES
+                ]
+            )
         )
 
         self.assertEqual(len(cnf), len(TEST_CNF_CLAUSES) + 2)
         self.assertEqual(len(cnf.vars), TEST_CNF_N_VARS + 6)
 
         return
-    
+
     def test_has_empty_clauses(self):
 
         cnf = CNF(
@@ -125,7 +130,7 @@ class TestCNF(TestCase):
         self.assertEqual(len(cnf.get_unit_clauses()), 1)
 
         return
-    
+
     def test_simplify(self):
 
         cnf = CNF(
@@ -137,7 +142,7 @@ class TestCNF(TestCase):
         self.assertEqual(len(cnf), len(TEST_CNF_CLAUSES))
 
         return
-    
+
     def test_reduce(self):
 
         cnf = CNF(
@@ -149,7 +154,7 @@ class TestCNF(TestCase):
         self.assertEqual(len(cnf[0]), len(TEST_CNF_CLAUSES[0]) - 1)
 
         return
-    
+
     def test_reduce_drop_clause(self):
 
         cnf = CNF(
@@ -160,7 +165,7 @@ class TestCNF(TestCase):
         self.assertEqual(len(cnf), len(TEST_CNF_CLAUSES) - 1)
 
         return
-    
+
     def test_evaluate_partial(self):
 
         tau = {}
@@ -170,11 +175,11 @@ class TestCNF(TestCase):
                     tau[lit[1:]] = True
                 else:
                     tau[lit] = True
-        
+
         self.assertTrue(self.cnf.evaluate(tau))
 
         return
-    
+
     def test_evaluate_complete(self):
 
         tau = {}
@@ -184,11 +189,11 @@ class TestCNF(TestCase):
                     tau[lit[1:]] = False
                 else:
                     tau[lit] = True
-        
+
         self.assertTrue(self.cnf.evaluate(tau))
 
         return
-    
+
     def test_unsatisfied(self):
 
         tau = {}
@@ -198,7 +203,7 @@ class TestCNF(TestCase):
                     tau[lit[1:]] = True
                 else:
                     tau[lit] = False
-        
+
         self.assertFalse(self.cnf.evaluate(tau))
 
         return

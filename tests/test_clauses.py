@@ -25,7 +25,7 @@ class TestConjunction(TestCase):
         self.assertEqual(len(self.conjunction), len(TEST_LITERALS))
 
         return
-    
+
     def test_is_empty(self):
 
         conjunction = Conjunction(*TEST_LITERALS)
@@ -33,14 +33,14 @@ class TestConjunction(TestCase):
         self.assertTrue(conjunction.is_empty())
 
         return
-    
+
     def test_is_unit(self):
 
         conjunction = Conjunction(TEST_LITERALS[0])
         self.assertTrue(conjunction.is_unit())
 
         return
-    
+
     def test_is_equivalent(self):
 
         conjunction = Conjunction(*TEST_LITERALS)
@@ -58,7 +58,7 @@ class TestDisjunction(TestCase):
         self.disjunction = Disjunction(*TEST_LITERALS)
 
         return
-    
+
     def test_to_dimacs(self):
 
         self.assertEqual(self.disjunction.to_dimacs(), EXP_DIMACS)

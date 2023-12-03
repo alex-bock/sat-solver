@@ -24,7 +24,7 @@ class Clause(abc.ABC):
     def __len__(self) -> int:
 
         return len(self.literals)
-    
+
     def __str__(self) -> int:
 
         s = LP + self.sym.join(self.literals) + RP
@@ -54,7 +54,7 @@ class Clause(abc.ABC):
     def is_equivalent(self, clause: Self) -> bool:
 
         return set(self.literals) == set(clause.literals)
-    
+
     def remove(self, *literals):
 
         for lit in literals:
