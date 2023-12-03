@@ -1,10 +1,37 @@
 
+import argparse
 import json
 
 from sat.puzzle import Puzzle
-from sat import DPLL
+from sat.solvers import DPLL
 
-from sat.selectors import NaiveSelector
+from sat.selectors import (
+    NaiveSelector,
+    RandomChoiceSelector,
+    TwoClauseSelector
+)
+
+
+SELECTORS = {
+    "naive": NaiveSelector,
+    "rand": RandomChoiceSelector,
+    "two": TwoClauseSelector
+}
+
+
+def parse_cli() -> argparse.Namespace:
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--selector",
+        default="naive"
+    )
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true"
+    )
+
+    return parser.parse_args()
 
 
 def build_puzzle() -> Puzzle:
@@ -44,6 +71,7 @@ def build_puzzle() -> Puzzle:
 
 if __name__ == "__main__":
 
+    cli_args = parse_cli()
     puzzle = build_puzzle()
 
     puzzle_cnf = puzzle.cnf
@@ -54,10 +82,14 @@ if __name__ == "__main__":
     with open("./output/var_map.json", "w") as f:
         json.dump(puzzle_cnf._var_map, f)
 
-    solver = DPLL(selector=NaiveSelector(), verbose=True)
+    solver = DPLL(
+        selector=SELECTORS[cli_args.selector](),
+        verbose=cli_args.verbose
+    )
     tau = solver.solve(puzzle_cnf)
     with open("./output/solution.txt", "w") as f:
         for (var, val) in tau.items():
             if val:
                 f.write(str(puzzle_cnf._var_map[var]) + " " +  var + "\n")
+    print(tau)
     print(puzzle_cnf.evaluate(tau))

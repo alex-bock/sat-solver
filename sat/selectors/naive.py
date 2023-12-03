@@ -11,6 +11,10 @@ class NaiveSelector(BaseSelector):
 
         return
 
-    def select(self, formula: CNF) -> str:
+    def select(self, formula: CNF) -> (str, bool):
 
-        return formula[0][0]
+        lit = formula[0][0]
+        val = self.assign(lit)
+        var = self._lit_to_var(lit)
+
+        return (var, val)

@@ -169,6 +169,11 @@ class CNF(ClausalFormula):
             cnf.add_clause(*np.random.choice(vars, size=k))
 
         return cnf
+    
+    @property
+    def vars(self) -> Set[str]:
+
+        return set(self._var_map.keys())
 
     def append_cnf(self, cnf: Self):
 
@@ -200,30 +205,36 @@ class CNF(ClausalFormula):
     def reduce(self, tau: Tau):
 
         i = 0
-        n = 0
+        # n = 0
         while i < len(self):
             clause = self[i]
+            # print(i)
             remove = False
             # print(clause)
             for var, val in tau.items():
+                # import pdb; pdb.set_trace()
+                # if n == 2 and var == "p2":
+                #     import pdb; pdb.set_trace()
                 if val:
                     if var in clause.literals:
                         remove = True
-                    elif f"{NOT}{var}" in clause.literals:
-                        clause.literals.remove(f"{NOT}{var}")
+                    else:
+                        while f"{NOT}{var}" in clause.literals:
+                            clause.literals.remove(f"{NOT}{var}")
                         # print(f"- Changed: {clause}")
                 else:
-                    if var in clause.literals:
-                        clause.literals.remove(var)
-                        # print(f"- Changed: {clause}")
-                    elif f"{NOT}{var}" in clause.literals:
+                    if f"{NOT}{var}" in clause.literals:
                         remove = True
+                    else:
+                        while var in clause.literals:
+                            clause.literals.remove(var)
+                        # print(f"- Changed: {clause}")
             if remove:
                 self.clauses.remove(clause)
-                n += 1
                 # print("- Removed")
             else:
                 i += 1
+            # n += 1
 
         return
 

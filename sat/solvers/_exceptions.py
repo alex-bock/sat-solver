@@ -1,4 +1,4 @@
 
-class UNSATExcpetion(Exception):
+class UNSATException(Exception):
 
     pass

@@ -11,6 +11,6 @@ class TwoClauseSelector(BaseSelector):
 
         return
 
-    def select(self, formula: CNF) -> str:
+    def select(self, formula: CNF) -> (str, bool):
 
         raise NotImplementedError
