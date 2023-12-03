@@ -24,8 +24,8 @@ class Clause(abc.ABC):
     def __len__(self) -> int:
 
         return len(self.literals)
-
-    def __repr__(self) -> str:
+    
+    def __str__(self) -> int:
 
         s = LP + self.sym.join(self.literals) + RP
 
@@ -33,6 +33,10 @@ class Clause(abc.ABC):
             return s[1:-1]
         else:
             return s
+
+    def __repr__(self) -> str:
+
+        return str(self)
 
     @abc.abstractproperty
     def sym(self) -> str:

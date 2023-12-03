@@ -10,12 +10,17 @@ from .constants import NOT, Tau
 
 class ClausalFormula(abc.ABC):
 
-    def __init__(self):
+    def __init__(self, clauses: List = None):
 
-        self.clauses = list()
-
+        if clauses is None:
+            clauses = list()
+        
+        self.clauses = clauses
         self._var_map = dict()
         self._n_vars = 0
+
+        for clause in self.clauses:
+            self._update_var_map(clause.literals)
 
         return
 
@@ -44,12 +49,16 @@ class ClausalFormula(abc.ABC):
     def __len__(self) -> int:
 
         return len(self.clauses)
+    
+    def __str__(self) -> str:
+
+        return self._clause_connective.sym.join(
+            [str(c) for c in self.clauses]
+        )
 
     def __repr__(self) -> str:
 
-        return self._clause_connective.sym.join(
-            [repr(c) for c in self.clauses]
-        )
+        return str(self)
 
     @property
     @abc.abstractproperty
@@ -62,12 +71,11 @@ class ClausalFormula(abc.ABC):
     def _literal_connective(self):
 
         raise NotImplementedError
+    
+    @property
+    def vars(self) -> Set[str]:
 
-    def as_str(self) -> str:
-
-        return self._clause_connective.sym.join(
-            [repr(c) for c in self.clauses]
-        )
+        return set(self._var_map.keys())
 
     def add_clause(self, *literals):
 
@@ -114,16 +122,6 @@ class DNF(ClausalFormula):
 
 
 class CNF(ClausalFormula):
-    
-    @property
-    def _clause_connective(self):
-
-        return Conjunction
-
-    @property
-    def _literal_connective(self):
-
-        return Disjunction
 
     @classmethod
     def from_dimacs(cls, fp: str) -> Self:
@@ -180,11 +178,16 @@ class CNF(ClausalFormula):
             cnf.add_clause(*np.random.choice(vars, size=k))
 
         return cnf
+    
+    @property
+    def _clause_connective(self):
+
+        return Conjunction
 
     @property
-    def vars(self) -> Set[str]:
+    def _literal_connective(self):
 
-        return set(self._var_map.keys())
+        return Disjunction
 
     def append_cnf(self, cnf: Self):
 
