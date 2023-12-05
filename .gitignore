@@ -1,5 +1,7 @@
 data/
+datasets/
 output/
+results/
 __pycache__/
 *.pyc
 .coverage

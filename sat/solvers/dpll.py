@@ -23,7 +23,11 @@ class DPLL(Solver):
 
         tau = {var: True for var in formula.vars}
         self._n_calls = 0
-        _, tau = self._solve_rec(formula, tau)
+
+        try:
+            _, tau = self._solve_rec(formula, tau)
+        except UNSATException:
+            tau = None
 
         return tau
 
@@ -99,6 +103,7 @@ class DPLL(Solver):
 
         if self._verbose:
             print(" " * depth, "splitting...", len(formula), var, val)
+        self._n_calls += 1
 
         assignment = {var: val}
         reduced_formula = copy.deepcopy(formula)
