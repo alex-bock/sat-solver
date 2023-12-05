@@ -171,11 +171,13 @@ class CNF(ClausalFormula):
     @classmethod
     def generate(cls, n: int, l: int, k: int = 3) -> Self:
 
-        vars = [f"p{i}" for i in range(n)] + [f"{NOT}p{i}" for i in range(n)]
+        domain = [f"p{i}" for i in range(n)]
         cnf = cls()
 
-        for i in range(l):
-            cnf.add_clause(*np.random.choice(vars, size=k))
+        for _ in range(l):
+            vars = np.random.choice(domain, size=k, replace=False)
+            lits = [f"{NOT}{var}" if np.random.uniform() > 0.5 else var for var in vars]
+            cnf.add_clause(*lits)
 
         return cnf
 
