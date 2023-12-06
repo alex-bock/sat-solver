@@ -5,14 +5,16 @@ from sat.experiment import Experiment
 from sat.selectors import (
     NaiveSelector,
     RandomChoiceSelector,
-    TwoClauseSelector
+    TwoClauseSelector,
+    ModalVariableSelector
 )
 
 
 SELECTORS = {
     "naive": NaiveSelector,
     "random": RandomChoiceSelector,
-    "two": TwoClauseSelector
+    "two": TwoClauseSelector,
+    "modal": ModalVariableSelector
 }
 
 

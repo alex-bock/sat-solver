@@ -1,6 +1,8 @@
 
 from ._base_selector import BaseSelector
+from .random_choice import RandomChoiceSelector
 from ..formulas import CNF
+from ..constants import NOT
 
 
 class TwoClauseSelector(BaseSelector):
@@ -9,8 +11,25 @@ class TwoClauseSelector(BaseSelector):
 
         super().__init__(*args, **kwargs)
 
+        self.fallback_selector = RandomChoiceSelector()
+
         return
 
     def select(self, formula: CNF) -> (str, bool):
 
-        raise NotImplementedError
+        # print(len([clause for clause in formula if len(clause) == 2]))
+
+        selection = None
+        for var in formula.vars:
+            clauses = [clause for clause in formula if (var in clause.literals or f"{NOT}{var}" in clause.literals) and len(clause) <= 2]
+            # print(var, clauses)
+            if len(clauses) > 0:
+                selection = (var, True)
+                break
+
+        if selection is None:
+            # print("falling back")
+            selection = self.fallback_selector.select(formula)
+        # print(selection)
+
+        return selection
