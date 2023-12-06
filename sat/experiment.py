@@ -11,6 +11,7 @@ import numpy as np
 
 from .formulas import CNF
 from .solvers import DPLL
+from .solvers._exceptions import TimeoutException
 from .selectors import BaseSelector
 
 
@@ -20,6 +21,9 @@ class Result:
     result: bool
     runtime: float
     n_calls: int
+
+
+DATASET_SIZE = 100
 
 
 class Dataset:
@@ -51,13 +55,13 @@ class Dataset:
         return dataset
 
     @classmethod
-    def generate(cls, n: int, n_vars: int, n_clauses: int) -> Self:
+    def generate(cls, n_vars: int, n_clauses: int) -> Self:
 
         dataset = cls()
         dataset.config["n"] = n_vars
         dataset.config["l"] = n_clauses
 
-        dataset._generate_formulas(n)
+        dataset._generate_formulas(DATASET_SIZE)
 
         return dataset
 
@@ -117,34 +121,35 @@ class Experiment:
     
     def run(self, outpath: str, n_iter: int = 100):
 
-        dataset_path = os.path.join("datasets", f"n={n_iter}")
+        dataset_path = os.path.join("datasets", f"n={self.n_vars}")
         if not os.path.exists(dataset_path):
             os.makedirs(dataset_path)
         ratios = np.arange(start=self.min_ratio, stop=self.max_ratio, step=self.ratio_step)
 
         for ratio in ratios:
             l = int(ratio * self.n_vars)
-            self._run_experiment(dataset_path, l, n_iter, outpath)
+            self._run_experiment(dataset_path, l, n_iter, os.path.join(outpath, f"n={self.n_vars}"))
 
         return
 
     def _run_experiment(self, dataset_path: str, l: int, n_iter: int, outpath: str):
 
         print("Loading dataset...")
-        dataset = self._get_dataset(os.path.join(dataset_path, f"l={l}"), l, n_iter)
+        dataset = self._get_dataset(os.path.join(dataset_path, f"l={l}"), l)
 
-        assert(len(dataset) == n_iter)
+        assert(len(dataset) >= n_iter)
 
-        results = Pool(processes=4).starmap(self._solve_formula, [[formula] for formula in dataset.formulas])
+        print("Starting...")
+        results = Pool(processes=4).starmap(self._solve_formula, [[formula] for formula in dataset.formulas[:n_iter]])
         self._write_results(results, l, dataset.config, outpath)
 
         return
     
-    def _get_dataset(self, dataset_path: str, l: int, n_iter: int) -> Dataset:
+    def _get_dataset(self, dataset_path: str, l: int) -> Dataset:
 
         if not os.path.exists(dataset_path):
-            print(f"Generating dataset of size {n_iter} for n={self.n_vars}, l={l}")
-            dataset = Dataset.generate(n=n_iter, n_vars=self.n_vars, n_clauses=l)
+            print(f"Generating dataset for n={self.n_vars}, l={l}")
+            dataset = Dataset.generate(n_vars=self.n_vars, n_clauses=l)
             print(f"- dataset_path")
             dataset.write(dataset_path)
 
@@ -157,9 +162,14 @@ class Experiment:
         solver = DPLL(selector=self.selector)
 
         t_start = time.time()
-        solution = solver.solve(formula)
-        t_end = time.time()
-        print(solver._n_calls, t_end - t_start)
+        try:
+            solution = solver.solve(formula)
+            t_end = time.time()
+            print(solver._n_calls, t_end - t_start)
+        except TimeoutException:
+            solution = None
+            print("(aborted)")
+            return None
         if solution is not None:
             assert(formula.evaluate(solution))
 
@@ -167,7 +177,7 @@ class Experiment:
     
     def _write_results(self, results: List[Result], l: int, dataset_config: Dict, outpath: str):
 
-        results_json = {"dataset": dataset_config, "l": l, "results": [asdict(result) for result in results]}
+        results_json = {"dataset": dataset_config, "l": l, "results": [asdict(result) for result in results if result is not None]}
 
         if not os.path.exists(outpath):
             os.makedirs(outpath)

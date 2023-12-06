@@ -1,10 +1,11 @@
 
 import copy
+import time
 from typing import Dict, Tuple
 
 from ._base_solver import Solver
 from ..selectors._base_selector import BaseSelector
-from ._exceptions import UNSATException
+from ._exceptions import UNSATException, TimeoutException
 
 from ..constants import Tau, NOT
 from ..formulas import CNF
@@ -19,10 +20,12 @@ class DPLL(Solver):
 
         return
 
-    def solve(self, formula: CNF) -> Tau:
+    def solve(self, formula: CNF, timeout: float = 60.0) -> Tau:
 
         tau = {var: True for var in formula.vars}
         self._n_calls = 0
+        self._timeout = timeout
+        self._t_start = time.time()
 
         try:
             _, tau = self._solve_rec(formula, tau)
@@ -34,6 +37,9 @@ class DPLL(Solver):
     def _solve_rec(
         self, formula: CNF, tau: Dict[str, bool], depth: int = 0
     ) -> Tuple[CNF, Tau]:
+        
+        if (time.time() - self._t_start) > self._timeout:
+            raise TimeoutException
 
         if len(formula) == 0:
             return formula, tau
@@ -41,9 +47,6 @@ class DPLL(Solver):
             if self._verbose:
                 print(" " * depth, "empty clauses found!")
             raise UNSATException
-        # else:
-        #     if self._verbose:
-        #         print(" " * depth, formula)
 
         if formula.has_unit_clauses():
             reduced_formula, updated_tau = self._unit_propagate(

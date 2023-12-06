@@ -4,7 +4,6 @@ from unittest import TestCase
 from sat.solvers import DPLL
 from sat.selectors import NaiveSelector
 from sat.formulas import CNF
-from sat.solvers._exceptions import UNSATException
 
 
 SIMPLE_SAT = "p0 ∧ ¬p1"
@@ -38,8 +37,8 @@ class TestDPLL(TestCase):
 
         cnf = CNF.from_str(SIMPLE_UNSAT)
 
-        with self.assertRaises(UNSATException):
-            self.solver.solve(cnf)
+        tau = self.solver.solve(cnf)
+        self.assertIsNone(tau)
 
         return
 
