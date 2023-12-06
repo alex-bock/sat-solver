@@ -43,7 +43,7 @@ class Dataset:
 
         if not os.path.exists(dir_path):
             raise ValueError
-        
+
         dataset.path = dir_path
 
         for cnf_fp in glob.glob(os.path.join(dir_path, "*.cnf")):
@@ -79,7 +79,7 @@ class Dataset:
             raise ValueError
         elif not os.path.exists(path):
             os.makedirs(path)
-        
+
         self.path = path
 
         for i in range(len(self)):
@@ -89,11 +89,11 @@ class Dataset:
             json.dump(self.config, f)
 
         return
-    
+
     def __len__(self) -> int:
 
         return len(self.formulas)
-    
+
     def __getitem__(self, idx: int) -> CNF:
 
         return self.formulas[idx]
@@ -118,45 +118,57 @@ class Experiment:
         self.ratio_step = ratio_step
 
         return
-    
+
     def run(self, outpath: str, n_iter: int = 100):
 
         dataset_path = os.path.join("datasets", f"n={self.n_vars}")
         if not os.path.exists(dataset_path):
             os.makedirs(dataset_path)
-        ratios = np.arange(start=self.min_ratio, stop=self.max_ratio, step=self.ratio_step)
+        ratios = np.arange(
+            start=self.min_ratio, stop=self.max_ratio, step=self.ratio_step
+        )
 
         for ratio in ratios:
             l = int(ratio * self.n_vars)
-            self._run_experiment(dataset_path, l, n_iter, os.path.join(outpath, f"n={self.n_vars}"))
+            self._run_experiment(
+                dataset_path,
+                l,
+                n_iter,
+                os.path.join(outpath, f"n={self.n_vars}")
+            )
 
         return
 
-    def _run_experiment(self, dataset_path: str, l: int, n_iter: int, outpath: str):
+    def _run_experiment(
+        self, dataset_path: str, l: int, n_iter: int, outpath: str
+    ):
 
         print("Loading dataset...")
         dataset = self._get_dataset(os.path.join(dataset_path, f"l={l}"), l)
 
-        assert(len(dataset) >= n_iter)
+        assert len(dataset) >= n_iter
 
         print("Starting...")
-        results = Pool(processes=4).starmap(self._solve_formula, [[formula] for formula in dataset.formulas[:n_iter]])
+        results = Pool(processes=4).starmap(
+            self._solve_formula,
+            [[formula] for formula in dataset.formulas[:n_iter]]
+        )
         self._write_results(results, l, dataset.config, outpath)
 
         return
-    
+
     def _get_dataset(self, dataset_path: str, l: int) -> Dataset:
 
         if not os.path.exists(dataset_path):
             print(f"Generating dataset for n={self.n_vars}, l={l}")
             dataset = Dataset.generate(n_vars=self.n_vars, n_clauses=l)
-            print(f"- dataset_path")
+            print(f"- {dataset_path}")
             dataset.write(dataset_path)
 
         dataset = Dataset.from_cache(dataset_path)
 
         return dataset
-    
+
     def _solve_formula(self, formula: CNF):
 
         solver = DPLL(selector=self.selector)
@@ -171,13 +183,25 @@ class Experiment:
             print("(aborted)")
             return None
         if solution is not None:
-            assert(formula.evaluate(solution))
+            assert formula.evaluate(solution)
 
-        return Result(result=solution is not None, runtime=t_end - t_start, n_calls=solver._n_calls)
-    
-    def _write_results(self, results: List[Result], l: int, dataset_config: Dict, outpath: str):
+        return Result(
+            result=solution is not None,
+            runtime=t_end - t_start,
+            n_calls=solver._n_calls
+        )
 
-        results_json = {"dataset": dataset_config, "l": l, "results": [asdict(result) for result in results if result is not None]}
+    def _write_results(
+        self, results: List[Result], l: int, dataset_config: Dict, outpath: str
+    ):
+
+        results_json = {
+            "dataset": dataset_config,
+            "l": l,
+            "results": [
+                asdict(result) for result in results if result is not None
+            ]
+        }
 
         if not os.path.exists(outpath):
             os.makedirs(outpath)

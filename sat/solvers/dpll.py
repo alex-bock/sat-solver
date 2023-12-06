@@ -37,7 +37,7 @@ class DPLL(Solver):
     def _solve_rec(
         self, formula: CNF, tau: Dict[str, bool], depth: int = 0
     ) -> Tuple[CNF, Tau]:
-        
+
         if (time.time() - self._t_start) > self._timeout:
             raise TimeoutException
 

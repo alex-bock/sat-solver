@@ -13,7 +13,7 @@ class ModalVariableSelector(BaseSelector):
         super().__init__(*args, **kwargs)
 
         return
-    
+
     def select(self, formula: CNF) -> (str, bool):
 
         pos_occ = defaultdict(int)

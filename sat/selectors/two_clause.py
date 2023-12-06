@@ -21,7 +21,12 @@ class TwoClauseSelector(BaseSelector):
 
         selection = None
         for var in formula.vars:
-            clauses = [clause for clause in formula if (var in clause.literals or f"{NOT}{var}" in clause.literals) and len(clause) <= 2]
+            clauses = [
+                clause for clause in formula
+                if (
+                    var in clause.literals or f"{NOT}{var}" in clause.literals
+                ) and len(clause) <= 2
+            ]
             # print(var, clauses)
             if len(clauses) > 0:
                 selection = (var, True)
