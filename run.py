@@ -1,4 +1,6 @@
 
+import argparse
+
 from sat.experiment import Experiment
 from sat.selectors import (
     NaiveSelector,
@@ -7,7 +9,34 @@ from sat.selectors import (
 )
 
 
+SELECTORS = {
+    "naive": NaiveSelector,
+    "random": RandomChoiceSelector,
+    "two": TwoClauseSelector
+}
+
+
+def parse_cli() -> argparse.Namespace:
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--method")
+    parser.add_argument("-n", dest="n_vars", type=int)
+    parser.add_argument("-rmin", dest="min_ratio", type=float, default=3.0)
+    parser.add_argument("-rmax", dest="max_ratio", type=float, default=6.0)
+    parser.add_argument("-rstep", dest="ratio_step", type=float, default=0.2)
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
 
-    exp = Experiment(selector=RandomChoiceSelector(), n_vars=100, min_ratio=3.0, max_ratio=6.0, ratio_step=0.2)
-    exp.run("results/random/", n_iter=10)
+    cli_args = parse_cli()
+
+    exp = Experiment(
+        selector=SELECTORS[cli_args.method](),
+        n_vars=cli_args.n_vars,
+        min_ratio=cli_args.min_ratio,
+        max_ratio=cli_args.max_ratio,
+        ratio_step=cli_args.ratio_step
+    )
+    exp.run(f"results/{cli_args.method}/")
