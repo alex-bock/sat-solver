@@ -5,7 +5,7 @@ import os
 from unittest import TestCase
 
 from sat.solvers import DPLL
-from sat.selectors import NaiveSelector
+from sat.selectors import ModalVariableSelector
 from sat.formulas import CNF
 
 
@@ -13,13 +13,13 @@ TEST_DATASET_PATH = "./tests/artifacts/test_cnfs/"
 RANDOM_RESULT_PATH = "./tests/artifacts/random_result.json"
 
 
-class TestNaiveSelector(TestCase):
+class TestModalVariableSelector(TestCase):
 
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
-        self.solver = DPLL(selector=NaiveSelector())
+        self.solver = DPLL(selector=ModalVariableSelector())
         
         self.cnfs = []
         for cnf_fp in glob.glob(os.path.join(TEST_DATASET_PATH, "*.cnf")):
