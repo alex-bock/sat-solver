@@ -27,7 +27,7 @@ if __name__ == "__main__":
         if len(result_json["results"]) == 0:
             continue
         results_df = pd.DataFrame(result_json["results"])
-        sat_rate = len(results_df[results_df.result]) / len(results_df)
+        sat_rate = len(results_df[results_df.result]) / 100
         print(f"- sat. rate:       {round(sat_rate * 100, 2)}%")
         print(f"- med. runtime:    {round(results_df.runtime.median(), 2)}s")
         print(f"- med. call count: {int(results_df.n_calls.median())}")
