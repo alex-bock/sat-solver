@@ -25,10 +25,10 @@ class TwoClauseSelector(BaseSelector):
                 clause for clause in formula
                 if (
                     var in clause.literals or f"{NOT}{var}" in clause.literals
-                ) and len(clause) <= 2
+                )
             ]
             # print(var, clauses)
-            if len(clauses) > 0:
+            if len(clauses) > 0 and max([len(clause) for clause in clauses]) == 2:
                 selection = (var, True)
                 break
 
