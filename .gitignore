@@ -2,6 +2,7 @@
 datasets/
 output/
 results/
+plots/
 __pycache__/
 *.pyc
 .coverage
