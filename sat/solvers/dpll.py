@@ -20,7 +20,7 @@ class DPLL(Solver):
 
         return
 
-    def solve(self, formula: CNF, timeout: float = 60.0) -> Tau:
+    def solve(self, formula: CNF, timeout: float = None) -> Tau:
 
         tau = {var: True for var in formula.vars}
         self._n_calls = 0
@@ -38,7 +38,7 @@ class DPLL(Solver):
         self, formula: CNF, tau: Dict[str, bool], depth: int = 0
     ) -> Tuple[CNF, Tau]:
 
-        if (time.time() - self._t_start) > self._timeout:
+        if self._timeout is not None and (time.time() - self._t_start) > self._timeout:
             raise TimeoutException
 
         if len(formula) == 0:

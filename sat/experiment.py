@@ -149,7 +149,7 @@ class Experiment:
         assert len(dataset) >= n_iter
 
         print("Starting...")
-        results = Pool(processes=4).starmap(
+        results = Pool(processes=8).starmap(
             self._solve_formula,
             [[formula] for formula in dataset.formulas[:n_iter]]
         )
@@ -175,7 +175,7 @@ class Experiment:
 
         t_start = time.time()
         try:
-            solution = solver.solve(formula)
+            solution = solver.solve(formula, timeout=300.0)
             t_end = time.time()
             print(solver._n_calls, t_end - t_start)
         except TimeoutException:
