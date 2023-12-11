@@ -28,7 +28,8 @@ class TwoClauseSelector(BaseSelector):
                 )
             ]
             # print(var, clauses)
-            if len(clauses) > 0 and max([len(clause) for clause in clauses]) == 2:
+            if len(clauses) > 0 and \
+               max([len(clause) for clause in clauses]) == 2:
                 selection = (var, True)
                 break
 

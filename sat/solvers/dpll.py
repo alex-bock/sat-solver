@@ -38,7 +38,8 @@ class DPLL(Solver):
         self, formula: CNF, tau: Dict[str, bool], depth: int = 0
     ) -> Tuple[CNF, Tau]:
 
-        if self._timeout is not None and (time.time() - self._t_start) > self._timeout:
+        if self._timeout is not None and \
+           (time.time() - self._t_start) > self._timeout:
             raise TimeoutException
 
         if len(formula) == 0:

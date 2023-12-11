@@ -119,7 +119,9 @@ class Experiment:
 
         return
 
-    def run(self, outpath: str, data_path: str = "./datasets/", n_iter: int = 100):
+    def run(
+        self, outpath: str, data_path: str = "./datasets/", n_iter: int = 100
+    ):
 
         dataset_path = os.path.join(data_path, f"n={self.n_vars}")
         if not os.path.exists(dataset_path):
